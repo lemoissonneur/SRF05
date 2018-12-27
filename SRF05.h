@@ -9,8 +9,8 @@
 * Dernière Revision: --					                                        *
 \********************************************************************************/
 
-#ifndef SONAR_H_INCLUDED
-#define SONAR_H_INCLUDED
+#ifndef SRF05_H_INCLUDED
+#define SRF05_H_INCLUDED
 
 
 /* NB : Si le sonar est un SRF05 en mode Echo et Trigger sur la même broche,
@@ -37,25 +37,25 @@
 
 
 /* Déclaration du format de l'objet Sonar : */
-	typedef struct Sonar {
-		// registres du port
-		volatile uint8_t *PORT_SONAR;
-		volatile uint8_t *W_SONAR;
-		volatile uint8_t *R_SONAR;
-		// numero des E/S
-		uint8_t TRIGGER_SONAR;
-		uint8_t ECHO_SONAR;
-		// distance mesuré par le sonar
-		float distance;
-	} Sonar;
+typedef struct {
+	// registres du port
+	volatile uint8_t *DdrRegister;
+	volatile uint8_t *PortRegister;
+	volatile uint8_t *PinRegister;
+	// numero des E/S
+	uint8_t TriggerPinNumber;
+	uint8_t EchoPinNumber;
+	// distance mesuré par le sonar
+	float Distance;
+}SRF05;
 
 /*Prototypes*/
 	//Renvoi la distance en cm entre le Sonar et l'objet le plus proche
 	//Ne necessite pas d'initialisation, fonctionne avec SRF04 et SRF05, quelquesoit le mode du SRF05
-	float Distance_Sonar(struct Sonar *sonar);
+float SRFMeasureDistance(SRF05 *sonar);
 
 
 
 
 	
-#endif // SONAR_H_INCLUDED
+#endif // SRF05_H_INCLUDED

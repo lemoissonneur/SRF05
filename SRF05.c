@@ -10,14 +10,11 @@
 \********************************************************************************/
 
 /* Librairies Externes au projet*/
-#include <avr/io.h>
-#include <avr/interrupt.h> //sei
-#include <stdio.h>
-#include <stdint.h>
+//#include <avr/io.h>
+#include <avr/interrupt.h>
 #include <util/delay.h>
-#include <ctype.h>
 
-#include "sonar.h"
+#include "SRF05.h"
 
 /****************************************************************************
 * Nom			: Init_Timer												*
@@ -43,7 +40,7 @@ void Init_Timer0A(void)
 }
 
 /* Lecture de la distance */
-float Distance_Sonar(struct Sonar *sonar)
+float SRFMeasureDistance(SRF05 *sonar)
 {
 	/*Environnement*/
 	//Distance en cm entre l'objet
@@ -59,20 +56,20 @@ float Distance_Sonar(struct Sonar *sonar)
 
 	/*Algo*/
 	//Trigger en sortie
-	*sonar->PORT_SONAR |= ( 1 << sonar->TRIGGER_SONAR );
+	*sonar->DdrRegister |= ( 1 << sonar->TriggerPinNumber );
 
 	//On demmare avec un niveau bas sur le Trigger puis une impulsion de minimum 10us
-	*sonar->W_SONAR &= ~(1 << sonar->TRIGGER_SONAR);
-	*sonar->W_SONAR |=	(1 << sonar->TRIGGER_SONAR);
+	*sonar->PortRegister &= ~(1 << sonar->TriggerPinNumber);
+	*sonar->PortRegister |=	(1 << sonar->TriggerPinNumber);
 	_delay_us(11);
-	*sonar->W_SONAR &= ~(1 << sonar->TRIGGER_SONAR);
+	*sonar->PortRegister &= ~(1 << sonar->TriggerPinNumber);
 
 	//Echo en entree (tri stated et non Pull-Up)
-	*sonar->PORT_SONAR &= ~(1 << sonar->ECHO_SONAR);
-	*sonar->W_SONAR	&= ~(1 << sonar->ECHO_SONAR);
+	*sonar->DdrRegister &= ~(1 << sonar->EchoPinNumber);
+	*sonar->PortRegister	&= ~(1 << sonar->EchoPinNumber);
 	
 	//Attente d'un front montant sur l'echo (NON BLOQUANT)
-	while( !(*sonar->R_SONAR & (1 << sonar->ECHO_SONAR)) && compt < 65333)
+	while( !(*sonar->PinRegister & (1 << sonar->EchoPinNumber)) && compt < 65333)
 	compt++;
 	
 	//RAZ du compteur
@@ -85,7 +82,7 @@ float Distance_Sonar(struct Sonar *sonar)
 	while(continuer)
 	{ 
 		//Si l'impulsion est finie
-		if( !(*sonar->R_SONAR & (1 << sonar->ECHO_SONAR)) )
+		if( !(*sonar->PinRegister & (1 << sonar->EchoPinNumber)) )
 		{
 			//Recuperation du temps dans le Timer
 			temps_restant = TCNT0;
@@ -109,7 +106,7 @@ float Distance_Sonar(struct Sonar *sonar)
 	//Conversion en une distance en cm 
 	Distance= ((float)Temps_total/116);
 
-	sonar->distance = Distance;
+	sonar->Distance = Distance;
 	
 	return (Distance);
 }
