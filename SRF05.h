@@ -1,61 +1,35 @@
-/********************************************************************************\
-* Nom du fichier: SONAR_SRF05.h													*
-* Microcontrolleur: At90Can128                                                  *
-* AUTEUR: Arthur LE BARON                                    	                *
-* Date Creation: 06 mai 2012													*
-* IUT: GEII Nantes-Carquefou                                                    *
-* DESCRPT.: permet la configuration et l'utilisation des sonars SRF05 et SRF04	*
-* sans distinction et quelque soit le mode du SRF05, le tout sans initialisation*
-* Dernière Revision: --					                                        *
-\********************************************************************************/
-
 #ifndef SRF05_H_INCLUDED
 #define SRF05_H_INCLUDED
 
-
-/* NB : Si le sonar est un SRF05 en mode Echo et Trigger sur la même broche,
-	*	indiquez simplement le meme numero de pin
-	*	
-	*	
-	*	/!\ IMPORTANT : A l'usage, laissez 50ms entre deux mesures pour 
-	*			eviter les perturbations
-	*
-	*
-	*	/!\	Exemple de déclaration d'un sonar : /!\
-	*		sur la broche 0 du port A
-	*
-	*		struct Sonar foo = { 
-	*								&DDRA,	// registre de direction du port
-	*								&PORTA,	// registre d'écriture du port
-	*								&PINA,	// registre de lecture du port
-	*								0,		// broche 'trigger'
-	*								0,		// broche 'echo'
-	*								0.0		// init de la distance à 0
-	*							};
-	*	/!\										/!\	
-*/
-
-
-/* Déclaration du format de l'objet Sonar : */
+/** @struct SRF05
+ *  @brief This structure contains adresses to register needed to communicate with an SRF05, trigger and echo pin number of the specified port, and last distance measured
+ *  @var SRF05::DdrRegister 
+ *    Member 'DdrRegister' contains the adress of the data direction register of the port connected to the sonar
+ *  @var SRF05::PortRegister 
+ *    Member 'PortRegister' contains the adress of the write register of the port connected to the sonar
+ *  @var SRF05::PinRegister 
+ *    Member 'PinRegister' contains the adress of the read register of the port connected to the sonar
+ *  @var SRF05::TriggerPinNumber 
+ *    Pin number from the port connected to the Trigger of the sonar
+ *  @var SRF05::EchoPinNumber 
+ *    Pin number from the port connected to the Echo of the sonar
+ *  @var SRF05::Distance 
+ *    Last measured distance (cm)
+ */
 typedef struct {
-	// registres du port
-	volatile uint8_t *DdrRegister;
-	volatile uint8_t *PortRegister;
-	volatile uint8_t *PinRegister;
-	// numero des E/S
-	uint8_t TriggerPinNumber;
-	uint8_t EchoPinNumber;
-	// distance mesuré par le sonar
-	float Distance;
+	volatile uint8_t *DdrRegister;	/**< data direction register */
+	volatile uint8_t *PortRegister; /**< output write register */
+	volatile uint8_t *PinRegister; /**< input read register */
+	uint8_t TriggerPinNumber;	/**< pin number for the trigger wire */
+	uint8_t EchoPinNumber; /**< pin number for echo wire */
+	float Distance; /**< last measured distance (cm) */
 }SRF05;
 
-/*Prototypes*/
-	//Renvoi la distance en cm entre le Sonar et l'objet le plus proche
-	//Ne necessite pas d'initialisation, fonctionne avec SRF04 et SRF05, quelquesoit le mode du SRF05
+/**
+ * @brief make a single distance measure from a sonar
+ * @param sonar sonar from which you want to measure
+ * @return the distance measured
+ */
 float SRFMeasureDistance(SRF05 *sonar);
-
-
-
-
 	
 #endif // SRF05_H_INCLUDED
