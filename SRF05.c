@@ -33,17 +33,21 @@ float SRFMeasureDistance(SRF05 *sonar)
 	Counter = 0;
 
 	// start Timer
-	#if F_CPU == 1000000
-		TCCR0A = 0x01;	// no prescaler -> T = 1us
-		#define SRFTimer0toTimeUs(t) t
-	#elif F_CPU == 8000000
-		TCCR0A = 0x02;	// prescaler F_CPU/8 -> T = 1us
-		#define SRFTimer0toTimeUs(t) t
-	#elif F_CPU == 16000000
-		TCCR0A = 0x02;	// prescaler F_CPU/8 -> T = 0.5us
-		#define SRFTimer0toTimeUs(t) t/2
+	#ifndef F_CPU
+		#error "SRF05: F_CPU not defined"
 	#else
-		#error "SRF05: please add your CPU frequency/timer0 prescaler configuration"
+		#if F_CPU == 1000000  // 1MHz
+			TCCR0A = 0x01;	// no prescaler -> T = 1us
+			#define SRFTimer0toTimeUs(t) t
+		#elif F_CPU == 8000000 // 8MHz
+			TCCR0A = 0x02;	// prescaler F_CPU/8 -> T = 1us
+			#define SRFTimer0toTimeUs(t) t
+		#elif F_CPU == 16000000 // 16MHz
+			TCCR0A = 0x02;	// prescaler F_CPU/8 -> T = 0.5us
+			#define SRFTimer0toTimeUs(t) t/2
+		#else
+			#error "SRF05: please add your CPU frequency/timer0 prescaler configuration"
+		#endif
 	#endif
 	
 	// measure the Echo signal time (one timer overflow = 128us)
@@ -77,6 +81,3 @@ float SRFMeasureDistance(SRF05 *sonar)
 	
 	return (sonar->Distance);
 }
-
-
-
